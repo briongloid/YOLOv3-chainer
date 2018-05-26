@@ -63,7 +63,7 @@ def main():
     optimizer = chainer.optimizers.MomentumSGD(lr=0.001)
     optimizer.setup(model)
     optimizer.add_hook(optimizer_hooks.WeightDecay(0.0005), 'hook_decay')
-    #optimizer.add_hook(optimizer_hooks.GradientClipping(20.0), 'hook_grad_clip')
+    optimizer.add_hook(optimizer_hooks.GradientClipping(10.0), 'hook_grad_clip')
     
     
     train = VOCBboxDataset(split='train')
@@ -129,7 +129,7 @@ def main():
     class_names = load_list('./data/voc.names')
     trainer.extend(YOLODetection(
         detector, 
-        ['./image/dog.jpg'],
+        ['./data/image/dog.jpg'],
         class_names, args.thresh,
         trigger=display_interval, device=device
     ))

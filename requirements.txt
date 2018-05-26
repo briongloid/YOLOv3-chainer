@@ -1,0 +1,7 @@
+cython
+numpy
+matplotlib
+pillow
+opencv-python
+chainer==4.0.0
+chainercv
