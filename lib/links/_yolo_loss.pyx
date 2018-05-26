@@ -2,8 +2,6 @@
 import numpy as np
 #cimport numpy as np
 
-from chainer.backends import cuda
-
 cdef float _overlap(float x1, float len1, float x2, float len2):
     cdef float len1_half = len1/2
     cdef float len2_half = len2/2
