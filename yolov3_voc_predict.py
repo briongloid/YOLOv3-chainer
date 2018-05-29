@@ -17,7 +17,7 @@ from lib.data import load_list
 from lib.visualize import vis_yolo
 
 def main():
-    parser = argparse.ArgumentParser(description='Chainer YOLOv3 Predict')
+    parser = argparse.ArgumentParser(description='Chainer YOLOv3 VOC Predict')
     parser.add_argument('--yolo')
     parser.add_argument('--image')
     parser.add_argument('--gpu', '-g', type=int, default=-1)
@@ -85,9 +85,6 @@ def main():
     confs = []
     probs = []
     for det in dets:
-        #box = cuda.to_cpu(det['box'])
-        #conf = cuda.to_cpu(det['conf'])
-        #prob = cuda.to_cpu(det['prob'])
         box = np.array(det['box'])
         conf = np.array(det['conf'])
         prob = np.array(det['prob'])

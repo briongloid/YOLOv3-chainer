@@ -12,7 +12,7 @@ from chainer.backends import cuda
 from chainercv.datasets import VOCBboxDataset
 
 from lib.links.darknet53 import Darknet53
-from lib.dataset import YOLOVOCDataset
+from lib.datasets.yolo_voc_dataset import YOLOVOCDataset
 from lib.extensions.darknet_shift import DarknetShift
 from lib.extensions.crop_size_updater import CropSizeUpdater
 
@@ -53,9 +53,9 @@ def main():
 
     train = VOCBboxDataset(split='train')
     test = VOCBboxDataset(split='val')
-    train = YOLOVOCDataset(train, jitter=0.2,
+    train = YOLOVOCDataset(train, classifier=True, jitter=0.2,
                         hue=0.1, sat=.75, val=.75)
-    test = YOLOVOCDataset(test, crop_size=(256, 256))
+    test = YOLOVOCDataset(test, classifier=True, crop_size=(256, 256))
     test = test[np.random.permutation(np.arange(len(test)))[:min(args.validation_size, len(test))]]
 
     train_iter = chainer.iterators.SerialIterator(train, args.batchsize)

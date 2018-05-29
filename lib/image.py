@@ -83,7 +83,7 @@ def random_hsv_image(rgb_image, hue=0, sat=1, val=1):
     rgb_image = rgb_image.astype(dtype)
     return rgb_image
 
-def random_detection(image, bbox, label, crop_size, jitter, hue, sat, val):
+def random_detection(image, bbox, label, crop_size, jitter, hue=0, sat=1, val=1, flip_ratio=0.5):
     image = np.array(image)
     w, h = crop_size
     
@@ -106,10 +106,21 @@ def random_detection(image, bbox, label, crop_size, jitter, hue, sat, val):
     image = resize_crop_image(image, crop_size, new_size, start_point)
     image = random_hsv_image(image, hue, sat, val)
     
-    flip = np.random.uniform()>0.5
+    flip = np.random.uniform()>1-flip_ratio
     if flip:
         image = image[:,::-1]
     
     bbox, label = reselect_boxes(bbox, label, crop_size, new_size, start_point, flip)
+    
+    return image, bbox, label
+
+def test_detection(image, bbox, label, crop_size):
+    image = np.array(image)
+    
+    new_size = crop_size
+    start_point = (round((image.shape[1] - crop_size[0])/2), round((image.shape[0] - crop_size[1])/2))
+    image = resize_crop_image(image, crop_size, new_size, start_point)
+    
+    bbox, label = reselect_boxes(bbox, label, crop_size, new_size, start_point, False)
     
     return image, bbox, label
