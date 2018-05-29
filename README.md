@@ -52,5 +52,5 @@ python yolov3_voc_train.py --darknet ./darknet53-voc-result/darknet53_snapshot.n
 ## 確認
 
 ```
-python yolov3_voc_predict.py ./yolov3-voc-result/yolov3_final.npz ./data/image/dog.jpg --thresh 0.8
+python yolov3_voc_predict.py --yolo ./yolov3-voc-result/yolov3_final.npz --image ./data/image/dog.jpg --thresh 0.8
 ```
