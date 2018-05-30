@@ -15,7 +15,7 @@ from lib.links.yolov3 import YOLOv3
 from lib.links.loss import YOLOv3Loss
 from lib.links.predict import YOLOv3Predictor
 from lib.data import load_list
-from lib.dataset import YOLOVOCDataset
+from lib.datasets.yolo_dataset import YOLODataset
 from lib.extensions.darknet_shift import DarknetShift
 from lib.extensions.crop_size_updater import CropSizeUpdater
 from lib.extensions.yolo_detection import YOLODetection
@@ -72,7 +72,7 @@ def main():
     optimizer.add_hook(optimizer_hooks.WeightDecay(0.0005), 'hook_decay')
     optimizer.add_hook(optimizer_hooks.GradientClipping(10.0), 'hook_grad_clip')
     
-    train = YOLODataset(args.train, train=True classifier=False, jitter=0.3,
+    train = YOLODataset(args.train, train=True, classifier=False, jitter=0.3,
                         hue=0.1, sat=1.5, val=1.5)
     train_iter = chainer.iterators.SerialIterator(train, args.batchsize)
 
@@ -93,15 +93,15 @@ def main():
     
     print_entries = ['epoch', 'iteration', 'main/loss', 'elapsed_time']
     plot_keys = ['main/loss']
-    snapshot_key = 'validation/main/loss'
+    snapshot_key = 'main/loss'
     
     if len(args.valid) > 0:
         print_entries = ['epoch', 'iteration', 
              'main/loss', 'validation/main/loss', 'elapsed_time']
         plot_keys = ['main/loss', 'validation/main/loss']
-        snapshot_key = 'main/loss'
+        snapshot_key = 'validation/main/loss'
         
-        test = YOLOVOCDataset(args.valid, train=False, classifier=False)
+        test = YOLODataset(args.valid, train=False, classifier=False)
         test_iter = chainer.iterators.SerialIterator(test, args.batchsize,
                                                      repeat=False, shuffle=False)
         trainer.extend(extensions.Evaluator(
