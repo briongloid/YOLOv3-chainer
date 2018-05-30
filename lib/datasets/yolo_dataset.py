@@ -77,6 +77,7 @@ class YOLODataset(DatasetMixin):
         image = image.transpose(2, 0, 1)
         
         image = image/255.0
+        image = image.astype(np.float32)
         
         if self.classifier and 0 == len(label):
             return self.get_example(i)
