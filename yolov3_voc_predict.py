@@ -14,6 +14,7 @@ from lib.links.yolov3 import YOLOv3
 from lib.links.loss import YOLOv3Loss
 from lib.links.predict import YOLOv3Predictor
 from lib.data import load_list
+from lib.utils import detection2text
 from lib.visualize import vis_yolo
 
 def main():
@@ -85,27 +86,17 @@ def main():
     confs = []
     probs = []
     for det in dets:
-        box = np.array(det['box'])
-        conf = np.array(det['conf'])
-        prob = np.array(det['prob'])
-        prob = prob * conf
-        prob[prob<args.thresh] = 0
+        bbox = det['box']
+        conf = det['conf']
+        prob = det['prob']
 
-        bboxes.append(box)
+        bboxes.append(bbox)
         confs.append(conf)
         probs.append(prob)
-    
-    for i, (bbox, conf, prob) in enumerate(zip(bboxes, confs, probs)):
-        text = 'conf {:.3}'.format(float(conf))
-        prob_texts = []
-        for j, p in enumerate(prob):
-            if p >= args.thresh:
-                prob_texts.append('{} {:.3}'.format(class_names[j], float(p)))
-        if len(prob_texts) > 0:
-            text += ':' + ','.join(prob_texts)
-        else:
-            continue
-        print(text)
+        
+        text = detection2text(bbox, conf, prob, class_names, args.thresh)
+        if len(text) > 0:
+            print(text)
     
     det_image = vis_yolo(org_image, 
                          bboxes, confs, probs,
