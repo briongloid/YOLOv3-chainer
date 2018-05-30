@@ -1,0 +1,7 @@
+./data/image/dog.jpg
+./data/image/eagle.jpg
+./data/image/giraffe.jpg
+./data/image/horses.jpg
+./data/image/kite.jpg
+./data/image/person.jpg
+./data/image/scream.jpg
