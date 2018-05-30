@@ -27,3 +27,21 @@ def yolo2xyminmax(size, box):
     ymin = int(round(h*(box[1] - box[3]/2))) + 1
     ymax = int(round(h*(box[1] + box[3]/2))) + 1
     return (xmin, xmax, ymin, ymax)
+
+def detection2text(bbox, conf, prob, names, thresh, allow_conf_only=False):
+    text = 'conf {:.3}'.format(float(conf))
+    prob_texts = []
+    for i, p in enumerate(prob):
+        if p >= thresh:
+            prob_texts.append('{} {:.3}'.format(names[i], float(p)))
+    if len(prob_texts) > 0:
+        text += ':' + ','.join(prob_texts)
+        return text
+    else:
+        if allow_conf_only:
+            return text
+        else:
+            return ''
+    
+    
+    

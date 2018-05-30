@@ -2,7 +2,7 @@ import numpy as np
 from PIL import Image
 import cv2
 
-from lib.utils import yolo2xyminmax
+from lib.utils import yolo2xyminmax, detection2text
 
 def vis_yolo(image, bboxes, confs, probs, names, thresh):
     font = cv2.FONT_HERSHEY_PLAIN
@@ -11,14 +11,8 @@ def vis_yolo(image, bboxes, confs, probs, names, thresh):
     size = (w, h)
     
     for i, (bbox, conf, prob) in enumerate(zip(bboxes, confs, probs)):
-        text = 'conf {:.3}'.format(float(conf))
-        prob_texts = []
-        for j, p in enumerate(prob):
-            if p >= thresh:
-                prob_texts.append('{} {:.3}'.format(names[j], float(p)))
-        if len(prob_texts) > 0:
-            text += ':' + ','.join(prob_texts)
-        else:
+        text = detection2text(bbox, conf, prob, names, thresh)
+        if len(text) == 0:
             continue
         
         bbox = yolo2xyminmax(size, bbox)
