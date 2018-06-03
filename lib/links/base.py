@@ -5,7 +5,6 @@ from .yolo import YOLO
 
     
 def forward_layer(layer, x, hs):
-    
     if isinstance(layer, (Convolution, Upsample, YOLO)):
         x = layer(x)
     elif isinstance(layer, (Shortcut, Route)):

@@ -130,7 +130,7 @@ def main():
     trainer.extend(YOLODetection(
         detector, 
         ['./data/image/dog.jpg'],
-        class_names, args.thresh,
+        class_names, size=(416, 416) ,thresh=args.thresh,
         trigger=display_interval, device=device
     ))
     

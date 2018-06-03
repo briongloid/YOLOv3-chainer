@@ -55,6 +55,22 @@ def resize_crop_image(image, crop_size, new_size, start_point):
     image = image[cy, cw]
     return image
 
+def letterbox_image(image, size):
+    w, h = size
+    ih, iw, _ = image.shape
+    if float(w)/iw < float(h)/ih:
+        new_w = w
+        new_h = (ih * w)/iw
+        start_point = (0, int((h-new_h)/2))
+    else:
+        new_h = h
+        new_w = (iw * h)/ih
+        start_point = (int((w-new_w)/2), 0)
+    
+    new_size = (int(new_w), int(new_h))
+    image = resize_crop_image(image, size, new_size, start_point)
+    return image
+
 def random_hsv_image(rgb_image, hue=0, sat=1, val=1):
     
     if 0==hue and 1==sat and 1==val:

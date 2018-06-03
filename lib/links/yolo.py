@@ -121,19 +121,20 @@ class YOLO(chainer.Chain):
     def get_t_and_scale(self, x, y, w, h, conf, prob, tbox, tlabel, input_size):
         xp = cuda.get_array_module(x)
         batchsize, n_box, _, grid_h, grid_w = x.shape
-        tx = xp.array(x.data)
-        ty = xp.array(y.data)
-        tw = xp.array(w.data)
-        th = xp.array(h.data)
-        tconf = xp.array(conf.data)
-        tprob = xp.array(prob.data)
         
-        tx = cuda.to_cpu(tx)
-        ty = cuda.to_cpu(ty)
-        tw = cuda.to_cpu(tw)
-        th = cuda.to_cpu(th)
-        tconf = cuda.to_cpu(tconf)
-        tprob = cuda.to_cpu(tprob)
+        x_cpu = np.array(cuda.to_cpu(x.data))
+        y_cpu = np.array(cuda.to_cpu(y.data))
+        w_cpu = np.array(cuda.to_cpu(w.data))
+        h_cpu = np.array(cuda.to_cpu(h.data))
+        conf_cpu = np.array(cuda.to_cpu(conf.data))
+        prob_cpu = np.array(cuda.to_cpu(prob.data))
+        
+        tx = np.array(x_cpu)
+        ty = np.array(y_cpu)
+        tw = np.array(w_cpu)
+        th = np.array(h_cpu)
+        tconf = np.array(conf_cpu)
+        tprob = np.array(prob_cpu)
         
         box_learning_scale = np.tile(0, x.shape).astype(np.float32)
         anchors = np.array(self.anchors, dtype=np.int32)
@@ -145,8 +146,8 @@ class YOLO(chainer.Chain):
             tlabel[b] = cuda.to_cpu(tlabel[b])
         
         tx, ty, tw, th, tconf, tprob, box_learning_scale =_t_and_scale(
-            cuda.to_cpu(x.data), cuda.to_cpu(y.data), 
-            cuda.to_cpu(w.data), cuda.to_cpu(h.data),
+            x_cpu, y_cpu, 
+            w_cpu, h_cpu,
             tx, ty, tw, th, tconf, tprob,
             box_learning_scale,
             batchsize, n_box, 

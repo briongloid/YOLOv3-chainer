@@ -14,6 +14,7 @@ from lib.links.yolov3 import YOLOv3
 from lib.links.loss import YOLOv3Loss
 from lib.links.predict import YOLOv3Predictor
 from lib.data import load_list
+from lib.image import letterbox_image
 from lib.utils import detection2text
 from lib.visualize import vis_yolo
 
@@ -46,20 +47,10 @@ def main():
     class_names = load_list('./data/voc.names')
     
     org_image = np.array(Image.open(args.image))
-    print('original size: {}'.format(org_image.shape))
-    h, w, _ = org_image.shape
-    ch = h//32*32
-    cw = w//32*32
-
-    top = (h-ch)//2
-    left = (w-cw)//2
-    bottom = top+ch
-    right = left+cw
-
-    org_image = org_image[top:bottom, left:right, :]
-    print('cropped size: {}'.format(org_image.shape))
-    
-    image = org_image.astype(np.float32)/255.0
+    input_size = org_image.shape[1::-1]
+    #input_size = (416, 416)
+    image = letterbox_image(org_image, (416, 416))
+    image = image.astype(np.float32)/255.0
     image = image.transpose(2,0,1)
     batch = [image]
     batch = convert.concat_examples(batch, args.gpu)
@@ -68,7 +59,7 @@ def main():
     print('First Detection Start')
     with chainer.using_config('train', False), \
          chainer.no_backprop_mode():
-        dets = detector(batch)[0]
+        dets = detector(batch, input_size)[0]
     elapsed_time = time.time() - start
     print('First Detection End')
     print('elapsed time: {}s'.format(elapsed_time))
@@ -77,7 +68,7 @@ def main():
     print('Second Detection Start')
     with chainer.using_config('train', False), \
          chainer.no_backprop_mode():
-        dets = detector(batch)[0]
+        dets = detector(batch, input_size)[0]
     elapsed_time = time.time() - start
     print('Second Detection End')
     print('elapsed time: {}s'.format(elapsed_time))
@@ -94,7 +85,7 @@ def main():
         confs.append(conf)
         probs.append(prob)
         
-        text = detection2text(bbox, conf, prob, class_names, args.thresh)
+        text = detection2text(conf, prob, class_names, args.thresh)
         if len(text) > 0:
             print(text)
     

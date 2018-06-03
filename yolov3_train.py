@@ -36,15 +36,16 @@ def main():
     parser.add_argument('--display_interval', type=int, default=100)
     parser.add_argument('--snapshot_interval', type=int, default=100)
     parser.add_argument('--ignore_thresh', type=float, default=0.5)
-    parser.add_argument('--thresh', type=float, default=0.4)
+    parser.add_argument('--thresh', type=float, default=0.5)
     parser.add_argument('--darknet', default='')
     parser.add_argument('--darknet_class', type=int, default=-1)
+    parser.add_argument('--steps', type=int, nargs='*', default=[-10200, -5200])
+    parser.add_argument('--scales', type=float, nargs='*', default=[0.1, 0.1])
     args = parser.parse_args()
     
     print('GPUs: {}'.format(args.gpus))
     print('# Minibatch-size: {}'.format(args.batchsize))
     print('# iteration: {}'.format(args.iteration))
-    print('')
     
     class_names = load_list(args.names)
     
@@ -128,9 +129,17 @@ def main():
         yolov3, 'yolov3_final.npz'), 
         trigger=snapshot_interval)
     
+    steps = args.steps
+    for i in range(len(steps)):
+        if steps[i] < 0:
+            steps[i] = args.iteration + steps[i]
+    scales = args.scales
+    print('# steps: {}'.format(steps))
+    print('# scales: {}'.format(scales))
+        
     trainer.extend(DarknetShift(
         optimizer, 'steps', args.iteration, burn_in=1000,
-        steps=[args.iteration-10200,args.iteration-5200], scales=[0.1,0.1]
+        steps=steps, scales=scales
     ))
     trainer.extend(CropSizeUpdater(train, 
                                    [(10+i)*32 for i in range(0,5)],
@@ -141,10 +150,13 @@ def main():
         trainer.extend(YOLODetection(
             detector, 
             load_list(args.detection),
-            class_names, args.thresh,
+            class_names, (416, 416),args.thresh,
             trigger=display_interval, device=device
         ))
     
+    print('')
+    print('RUN')
+    print('')
     trainer.run()
 
 if __name__ == '__main__':

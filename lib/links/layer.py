@@ -61,6 +61,8 @@ class Route(chainer.Chain):
         self.layer_index = layer_index
     
     def __call__(self, hs):
+        #for i in self.layer_index:
+        #    print(hs[i].shape)
         return F.concat([hs[i] for i in self.layer_index], axis=1)
 
 class Upsample(chainer.Chain):
@@ -68,7 +70,6 @@ class Upsample(chainer.Chain):
         super(Upsample, self).__init__()
         self.stride = stride
         
-    
     def __call__(self, x):
         return F.unpooling_2d(x, self.stride, 
                               outsize=np.array(x.shape[2:])*self.stride)
