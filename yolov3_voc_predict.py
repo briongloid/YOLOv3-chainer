@@ -47,8 +47,7 @@ def main():
     class_names = load_list('./data/voc.names')
     
     org_image = np.array(Image.open(args.image))
-    input_size = org_image.shape[1::-1]
-    #input_size = (416, 416)
+    org_size = org_image.shape[1::-1]
     image = letterbox_image(org_image, (416, 416))
     image = image.astype(np.float32)/255.0
     image = image.transpose(2,0,1)
@@ -59,7 +58,7 @@ def main():
     print('First Detection Start')
     with chainer.using_config('train', False), \
          chainer.no_backprop_mode():
-        dets = detector(batch, input_size)[0]
+        dets = detector(batch, org_size)[0]
     elapsed_time = time.time() - start
     print('First Detection End')
     print('elapsed time: {}s'.format(elapsed_time))
@@ -68,7 +67,7 @@ def main():
     print('Second Detection Start')
     with chainer.using_config('train', False), \
          chainer.no_backprop_mode():
-        dets = detector(batch, input_size)[0]
+        dets = detector(batch, org_size)[0]
     elapsed_time = time.time() - start
     print('Second Detection End')
     print('elapsed time: {}s'.format(elapsed_time))
