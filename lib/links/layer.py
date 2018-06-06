@@ -1,5 +1,4 @@
 import numpy as np
-import cupy
 
 import chainer
 import chainercv
