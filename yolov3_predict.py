@@ -21,6 +21,7 @@ from lib.visualize import vis_yolo
 def main():
     parser = argparse.ArgumentParser(description='Chainer YOLOv3 VOC Predict')
     parser.add_argument('--yolo')
+    parser.add_argument('--names')
     parser.add_argument('--image')
     parser.add_argument('--gpu', '-g', type=int, default=-1)
     parser.add_argument('--out', '-o', default='detect')
@@ -34,8 +35,9 @@ def main():
     print('thresh:', args.thresh)
     print('')
     
+    class_names = load_list(args.names)
     print('Loading Weight')
-    yolov3 = YOLOv3(20)
+    yolov3 = YOLOv3(len(class_names))
     serializers.load_npz(args.yolo, yolov3)
     print('Loaded Weight')
     
@@ -44,7 +46,6 @@ def main():
         yolov3.to_gpu()
     
     detector = YOLOv3Predictor(yolov3, thresh=args.thresh)
-    class_names = load_list('./data/voc.names')
     
     org_image = np.array(Image.open(args.image))
     org_size = org_image.shape[1::-1]

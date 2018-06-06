@@ -21,8 +21,9 @@ def main():
     parser = argparse.ArgumentParser(description='Chainer YOLOv3 Video')
     parser.add_argument('--yolo')
     parser.add_argument('--names')
-    parser.add_argument('--video')
+    parser.add_argument('--camera', type=int, default=0)
     parser.add_argument('--gpu', '-g', type=int, default=-1)
+    parser.add_argument('--out', '-o', default='camera_yolov3')
     parser.add_argument('--thresh', type=float, default=0.5)
     args = parser.parse_args()
     
@@ -36,36 +37,30 @@ def main():
     if args.gpu >= 0:
         cuda.get_device_from_id(args.gpu).use()
         yolov3.to_gpu()
-
+    
     detector = YOLOv3Predictor(yolov3, thresh=args.thresh)
     
-    os.makedirs('video', exist_ok=True)
-    name, ext = os.path.splitext(os.path.basename(args.video))
-    output_path = os.path.join('video', '{}_yolov3{}'.format(name, ext))
-    
+    os.makedirs('camera', exist_ok=True)
+    output_path = os.path.join('camera', '{}.mp4'.format(args.out))
     
     count = 0
-    cap = cv2.VideoCapture(args.video)
-
-    video_frame = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    cap = cv2.VideoCapture(args.camera)
+    
     size = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-    video = cv2.VideoWriter(output_path, 
-                            cv2.VideoWriter_fourcc('m','p','4','v'), 
-                            cap.get(cv2.CAP_PROP_FPS), 
-                            size, True)
+    
     start = time.time()
     
     while cap.isOpened():
-
-        sys.stdout.write('\rframe: {}/{}, elapsed time: {:.3f}s'.format(count,
-                                                                        video_frame,
-                                                                        time.time() - start))
+        
+        sys.stdout.write('\rframe: {}, elapsed time: {:.3f}s'.format(count, 
+                                                                     time.time() - start))
         sys.stdout.flush()
+        
         flag, frame = cap.read()
 
         if flag == False:
             break
-
+        
         image = letterbox_image(frame[:,:,::-1], (416, 416))
         image = image.astype(np.float32)/255.0
         image = image.transpose(2,0,1)
@@ -91,16 +86,12 @@ def main():
         det_image = vis_yolo(frame, 
                              bboxes, confs, probs,
                              class_names, args.thresh, image_is_bgr=True)
+        
+        cv2.imshow('camera capture', det_image)
 
-        video.write(det_image)
-        count += 1
-
-    print('')
+        k = cv2.waitKey(1) 
+        if k == 27:
+            break
     
     cap.release()
-    video.release()
-    
-    
-
-if __name__ == '__main__':
-    main()
+    cv2.destroyAllWindows()
