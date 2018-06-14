@@ -92,6 +92,10 @@ def main():
         k = cv2.waitKey(1) 
         if k == 27:
             break
+        
+        count += 1
+    
+    print('')
     
     cap.release()
     cv2.destroyAllWindows()

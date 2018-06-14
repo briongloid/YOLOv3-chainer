@@ -50,6 +50,7 @@ def main():
     org_image = np.array(Image.open(args.image))
     org_size = org_image.shape[1::-1]
     image = letterbox_image(org_image, (416, 416))
+    #image = letterbox_image(org_image, (320, 320))
     image = image.astype(np.float32)/255.0
     image = image.transpose(2,0,1)
     batch = [image]

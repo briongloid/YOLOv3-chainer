@@ -73,10 +73,14 @@ def main():
     optimizer.add_hook(optimizer_hooks.WeightDecay(0.0005), 'hook_decay')
     optimizer.add_hook(optimizer_hooks.GradientClipping(10.0), 'hook_grad_clip')
     
-    train = YOLODataset(args.train, train=True, classifier=False, jitter=0.3,
-                        hue=0.1, sat=1.5, val=1.5)
-    train_iter = chainer.iterators.SerialIterator(train, args.batchsize)
-
+    train = YOLODataset(args.train, train=True, classifier=False, 
+                        jitter=0.3, hue=0.1, sat=1.5, val=1.5)
+    #train_iter = chainer.iterators.SerialIterator(train, args.batchsize)
+    
+    
+    train_iter = chainer.iterators.MultiprocessIterator(train, args.batchsize,
+                                                        shared_mem=(448**2*3+(1+4)*100)*4)
+    
     if len(args.gpus) <= 1:
         updater = training.StandardUpdater(
             train_iter, optimizer, converter=concat_yolo, device=device)
@@ -126,8 +130,11 @@ def main():
         trigger=training.triggers.MinValueTrigger(
             snapshot_key, snapshot_interval))
     trainer.extend(extensions.snapshot_object(
-        yolov3, 'yolov3_final.npz'), 
+        yolov3, 'yolov3_backup.npz'), 
         trigger=snapshot_interval)
+    trainer.extend(extensions.snapshot_object(
+        yolov3, 'yolov3_final.npz'), 
+        trigger=(args.iteration, 'iteration'))
     
     steps = args.steps
     for i in range(len(steps)):
